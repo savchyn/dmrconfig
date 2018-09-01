@@ -1,6 +1,9 @@
 sudo: false
 os: linux
 language: c
+before_install:
+  sudo apt-get -y install libusb-dev
+145	
 deploy:
   provider: pages
   skip-cleanup: true
