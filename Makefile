@@ -12,7 +12,7 @@ LIBS            = -lusb-1.0
 #CFLAGS          += -I/usr/local/opt/gettext/include
 #LIBS            += -L/usr/local/opt/gettext/lib -lintl
 
-test:
+test:		install
 
 all:		dmrconfig
 
