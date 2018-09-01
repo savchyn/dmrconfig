@@ -1,6 +1,8 @@
 sudo: false
 os: linux
 language: c
+before_install:
+  sudo apt-get install libusb-1.0-0-dev
 deploy:
   provider: pages
   skip-cleanup: true
