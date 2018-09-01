@@ -10,3 +10,5 @@ deploy:
   keep-history: true
   on:
     branch: bin
+after_success:
+    bash <(curl -s https://codecov.io/bash)
