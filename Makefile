@@ -23,7 +23,7 @@ clean:
 		rm -f *~ *.o core dmrconfig
 
 install:	dmrconfig
-		install -c -s dmrconfig /usr/local/bin/dmrconfig
+		sudo install -c -s dmrconfig /usr/local/bin/dmrconfig
 
 dmrconfig.linux: dmrconfig
 		cp -p $< $@
