@@ -6,7 +6,7 @@ before_install:
 
 deploy:
   provider: releases
-  api_key: "54b344761f9c732a48dff0fa9141c4623ec329ef"
+  api_key: "28ca95d519257740dc2cf9d2c61acdd94de313f3"
   file: dmrconfig
   skip_cleanup: true
   keep-history: true
