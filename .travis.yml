@@ -6,7 +6,7 @@ before_install:
 
 deploy:
   provider: releases
-  api_key: "GITHUB OAUTH TOKEN"
+  api_key: "54b344761f9c732a48dff0fa9141c4623ec329ef"
   file: dmrconfig
   skip_cleanup: true
   keep-history: true
