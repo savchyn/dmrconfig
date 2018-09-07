@@ -1,16 +1,15 @@
 <img src="https://travis-ci.org/savchyn/dmrconfig.svg?branch=master" alt="Build Status" />
 
-[![codecov](https://codecov.io/gh/savchyn/atmos/dmrconfig/master/graph/badge.svg)](https://codecov.io/gh/savchyn/dmrconfig)
-
-
-
+[![codecov](https://codecov.io/gh/savchyn/dmrconfig/master/graph/badge.svg)](https://codecov.io/gh/savchyn/dmrconfig)
 DMRconfig is a utility for programming digital radios via USB programming cable.
 Supported radios:
 
- * TYT MD-380 (not tested)
- * TYT MD-2017 (not tested)
+ * TYT MD-380, Retevis RT3, RT8
+ * TYT MD-2017, Retevis RT82 (untested)
  * TYT MD-UV380
-
+ * Zastone D900 (untested)
+ * Zastone DP880 (untested)
+ * Radtel RT-27D (untested)
 
 ## Usage
 
@@ -35,6 +34,10 @@ Show configuration from the codeplug file:
 Apply configuration from text file to the codeplug file:
 
     dmrconfig -c file.img file.conf
+
+Update database of contacts from CSV file:
+
+    dmrconfig -u [-t] file.csv
 
 Option -t enables tracing of USB protocol.
 

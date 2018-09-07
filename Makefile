@@ -1,18 +1,16 @@
 CC		= gcc
 
-VERSION         = 0.1
+VERSION         = 0.3
 GITCOUNT        = $(shell git rev-list HEAD --count)
 CFLAGS		= -g -O -Wall -Werror -DVERSION='"$(VERSION).$(GITCOUNT)"'
 LDFLAGS		= -g
 
-OBJS		= main.o util.o radio.o dfu.o uv380.o md380.o
+OBJS		= main.o util.o radio.o dfu-libusb.o uv380.o md380.o
 LIBS            = -lusb-1.0
 
 # Mac OS X
 #CFLAGS          += -I/usr/local/opt/gettext/include
 #LIBS            += -L/usr/local/opt/gettext/lib -lintl
-
-test:		install
 
 all:		dmrconfig
 
@@ -20,17 +18,17 @@ dmrconfig:	$(OBJS)
 		$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 clean:
-		rm -f *~ *.o core dmrconfig
+		rm -f *~ *.o core dmrconfig dmrconfig.exe
 
 install:	dmrconfig
-		sudo install -c -s dmrconfig /usr/local/bin/dmrconfig
+		install -c -s dmrconfig /usr/local/bin/dmrconfig
 
 dmrconfig.linux: dmrconfig
 		cp -p $< $@
 		strip $@
 
 ###
-dfu.o: dfu.c util.h
+dfu-libusb.o: dfu-libusb.c util.h
 main.o: main.c radio.h util.h
 md380.o: md380.c radio.h util.h
 radio.o: radio.c radio.h util.h

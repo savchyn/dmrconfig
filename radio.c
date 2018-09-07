@@ -47,11 +47,9 @@ void radio_disconnect()
 {
     fprintf(stderr, "Close device.\n");
 
-    // Restore the port mode.
+    // Restore the normal radio mode.
+    dfu_reboot();
     dfu_close();
-
-    // Radio needs a timeout to reset to a normal state.
-    mdelay(2000);
 }
 
 //
@@ -69,21 +67,30 @@ void radio_connect()
 {
     // Only TYT MD family for now.
     const char *ident = dfu_init(0x0483, 0xdf11);
-    fprintf(stderr, "Connect to %s.\n", ident);
 
-    if (strcasecmp(ident, "MD380") == 0) {
+    if (strcasecmp(ident, "DR780") == 0) {      // TYT MD-380, Retevis RT3, RT8
         device = &radio_md380;
     } else
-    if (strcasecmp(ident, "MD-2017") == 0) {
+    if (strcasecmp(ident, "ZD3688") == 0) {     // Zastone D900
+        device = &radio_d900;
+    } else
+    if (strcasecmp(ident, "TP660") == 0) {      // Zastone DP880
+        device = &radio_dp880;
+    } else
+    if (strcasecmp(ident, "ZN><:") == 0) {      // Radtel RT-27D
+        device = &radio_rt27d;
+    } else
+    if (strcasecmp(ident, "2017") == 0) {       // TYT MD-2017, Retevis RT82
         device = &radio_md2017;
     } else
-    if (strcasecmp(ident, "MD-UV380") == 0) {
+    if (strcasecmp(ident, "MD-UV380") == 0) {   // TYT MD-UV380
         device = &radio_uv380;
     } else {
         fprintf(stderr, "Unrecognized radio '%s'.\n",
             ident);
         exit(-1);
     }
+    fprintf(stderr, "Connect to %s.\n", device->name);
 }
 
 //
@@ -125,7 +132,7 @@ void radio_upload(int cont_flag)
 //
 // Read firmware image from the binary file.
 //
-void radio_read_image(char *filename)
+void radio_read_image(const char *filename)
 {
     FILE *img;
     struct stat st;
@@ -164,7 +171,7 @@ void radio_read_image(char *filename)
 //
 // Save firmware image to the binary file.
 //
-void radio_save_image(char *filename)
+void radio_save_image(const char *filename)
 {
     FILE *img;
 
@@ -181,7 +188,7 @@ void radio_save_image(char *filename)
 //
 // Read the configuration from text file, and modify the firmware.
 //
-void radio_parse_config(char *filename)
+void radio_parse_config(const char *filename)
 {
     FILE *conf;
     char line [256], *p, *v;
@@ -292,4 +299,27 @@ void radio_verify_config()
         // Message should be already printed.
         exit(-1);
     }
+}
+
+//
+// Update contacts database on the device.
+//
+void radio_write_csv(const char *filename)
+{
+    FILE *csv;
+
+    if (!device->write_csv) {
+        fprintf(stderr, "%s does not support CSV database.\n", device->name);
+        exit(-1);
+    }
+
+    csv = fopen(filename, "rb");
+    if (! csv) {
+        perror(filename);
+        exit(-1);
+    }
+    fprintf(stderr, "Read file '%s'.\n", filename);
+
+    device->write_csv(device, csv);
+    fclose(csv);
 }

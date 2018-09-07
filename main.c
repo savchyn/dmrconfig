@@ -42,28 +42,31 @@ void usage()
     fprintf(stderr, _("DMR Config, Version %s, %s\n"), version, copyright);
     fprintf(stderr, _("Usage:\n"));
     fprintf(stderr, _("    dmrconfig -r [-t]\n"));
-    fprintf(stderr, _("                                 Read codeplug from the radio and save it to a binary file 'device.img'.\n"));
-    fprintf(stderr, _("                                 Save configuration to a text file 'device.conf'.\n"));
+    fprintf(stderr, _("                         Read codeplug from the radio to a file 'device.img'.\n"));
+    fprintf(stderr, _("                         Save configuration to a text file 'device.conf'.\n"));
     fprintf(stderr, _("    dmrconfig -w [-t] file.img\n"));
-    fprintf(stderr, _("                                 Write codeplug to the radio.\n"));
+    fprintf(stderr, _("                         Write codeplug to the radio.\n"));
     fprintf(stderr, _("    dmrconfig -c [-t] file.conf\n"));
-    fprintf(stderr, _("                                 Apply configuration script to the radio.\n"));
+    fprintf(stderr, _("                         Apply configuration script to the radio.\n"));
     fprintf(stderr, _("    dmrconfig -c file.img file.conf\n"));
-    fprintf(stderr, _("                                 Apply configuration script to the codeplug image.\n"));
-    fprintf(stderr, _("                                 Store modified copy to a file 'device.img'.\n"));
+    fprintf(stderr, _("                         Apply configuration script to the codeplug image.\n"));
+    fprintf(stderr, _("                         Store modified copy to a file 'device.img'.\n"));
     fprintf(stderr, _("    dmrconfig file.img\n"));
-    fprintf(stderr, _("                                 Display configuration from the codeplug image.\n"));
+    fprintf(stderr, _("                         Display configuration from the codeplug image.\n"));
+    fprintf(stderr, _("    dmrconfig -u [-t] file.csv\n"));
+    fprintf(stderr, _("                         Update contacts database from CSV file.\n"));
     fprintf(stderr, _("Options:\n"));
     fprintf(stderr, _("    -r           Read codeplug from the radio.\n"));
     fprintf(stderr, _("    -w           Write codeplug to the radio.\n"));
     fprintf(stderr, _("    -c           Configure the radio from a text script.\n"));
+    fprintf(stderr, _("    -u           Update contacts database.\n"));
     fprintf(stderr, _("    -t           Trace USB protocol.\n"));
     exit(-1);
 }
 
 int main(int argc, char **argv)
 {
-    int read_flag = 0, write_flag = 0, config_flag = 0;
+    int read_flag = 0, write_flag = 0, config_flag = 0, csv_flag = 0;
 
     // Set locale and message catalogs.
     setlocale(LC_ALL, "");
@@ -79,11 +82,12 @@ int main(int argc, char **argv)
     copyright = _("Copyright (C) 2018 Serge Vakulenko KK6ABQ");
     trace_flag = 0;
     for (;;) {
-        switch (getopt(argc, argv, "tcwr")) {
-        case 't': ++trace_flag; continue;
-        case 'r': ++read_flag;      continue;
-        case 'w': ++write_flag;     continue;
-        case 'c': ++config_flag;    continue;
+        switch (getopt(argc, argv, "tcwru")) {
+        case 't': ++trace_flag;  continue;
+        case 'r': ++read_flag;   continue;
+        case 'w': ++write_flag;  continue;
+        case 'c': ++config_flag; continue;
+        case 'u': ++csv_flag;    continue;
         default:
             usage();
         case EOF:
@@ -93,8 +97,8 @@ int main(int argc, char **argv)
     }
     argc -= optind;
     argv += optind;
-    if (write_flag + config_flag > 1) {
-        fprintf(stderr, "Only one of -w or -c options is allowed.\n");
+    if (read_flag + write_flag + config_flag + csv_flag > 1) {
+        fprintf(stderr, "Only one of -r, -w, -c or -u options is allowed.\n");
         usage();
     }
     setvbuf(stdout, 0, _IOLBF, 0);
@@ -156,6 +160,16 @@ int main(int argc, char **argv)
         }
         radio_print_config(conf, 1);
         fclose(conf);
+
+    } else if (csv_flag) {
+        // Update contacts database on the device.
+        if (argc != 1)
+            usage();
+
+        radio_connect();
+        radio_write_csv(argv[0]);
+        radio_disconnect();
+
     } else {
         if (argc != 1)
             usage();
