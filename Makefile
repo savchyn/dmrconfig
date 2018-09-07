@@ -20,6 +20,8 @@ dmrconfig:	$(OBJS)
 clean:
 		rm -f *~ *.o core dmrconfig dmrconfig.exe
 
+test: dmrconfig
+
 install:	dmrconfig
 		install -c -s dmrconfig /usr/local/bin/dmrconfig
 
@@ -27,6 +29,7 @@ dmrconfig.linux: dmrconfig
 		cp -p $< $@
 		strip $@
 
+.PHONY: all clean test install
 ###
 dfu-libusb.o: dfu-libusb.c util.h
 main.o: main.c radio.h util.h
