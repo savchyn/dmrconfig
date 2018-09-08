@@ -176,7 +176,7 @@ void radio_save_image(const char *filename)
     FILE *img;
 
     fprintf(stderr, "Write codeplug to file '%s'.\n", filename);
-    img = fopen(filename, "w");
+    img = fopen(filename, "wb");
     if (! img) {
         perror(filename);
         exit(-1);
