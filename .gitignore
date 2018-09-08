@@ -1,5 +1,5 @@
 *.o
 *.hd
-*.exe
 dmrconfig
 *.exe
+*.obj
