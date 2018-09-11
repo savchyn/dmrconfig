@@ -784,7 +784,9 @@ static int have_channels(int mode)
 //      TX Frequency
 //      Power
 //      Scan List
-//      Squelch
+//      Autoscan
+//      TOT
+//      RX Only
 //      Admit Criteria
 //
 static void print_chan_base(FILE *out, channel_t *ch, int cnum)
@@ -805,8 +807,6 @@ static void print_chan_base(FILE *out, channel_t *ch, int cnum)
 
     fprintf(out, "%c  ", "-+"[ch->autoscan]);
 
-    fprintf(out, "%-7s ", SQUELCH_NAME[ch->squelch]);
-
     if (ch->tot == 0)
         fprintf(out, "-   ");
     else
@@ -820,12 +820,9 @@ static void print_chan_base(FILE *out, channel_t *ch, int cnum)
 #ifdef PRINT_RARE_PARAMS
 //
 // Print extended parameters of the channel:
-//      TOT
 //      TOT Rekey Delay
 //      RX Ref Frequency
 //      RX Ref Frequency
-//      Autoscan
-//      RX Only
 //      Lone Worker
 //      VOX
 //
@@ -853,18 +850,17 @@ static void print_digital_channels(FILE *out, int verbose)
         fprintf(out, "# 5) Transmit power: High, Low\n");
         fprintf(out, "# 6) Scan list: - or index in Scanlist table\n");
         fprintf(out, "# 7) Autoscan flag: -, +\n");
-        fprintf(out, "# 8) Squelch level: Normal, Tight\n");
-        fprintf(out, "# 9) Transmit timeout timer in seconds: 0, 15, 30, 45... 555\n");
-        fprintf(out, "# 10) Receive only: -, +\n");
-        fprintf(out, "# 11) Admit criteria: -, Free, Color\n");
-        fprintf(out, "# 12) Color code: 0, 1, 2, 3... 15\n");
-        fprintf(out, "# 13) Time slot: 1 or 2\n");
-        fprintf(out, "# 14) In call criteria: -, Admit, TXInt\n");
-        fprintf(out, "# 15) Receive group list: - or index in Grouplist table\n");
-        fprintf(out, "# 16) Contact for transmit: - or index in Contacts table\n");
+        fprintf(out, "# 8) Transmit timeout timer in seconds: 0, 15, 30, 45... 555\n");
+        fprintf(out, "# 9) Receive only: -, +\n");
+        fprintf(out, "# 10) Admit criteria: -, Free, Color\n");
+        fprintf(out, "# 11) Color code: 0, 1, 2, 3... 15\n");
+        fprintf(out, "# 12) Time slot: 1 or 2\n");
+        fprintf(out, "# 13) In call criteria: -, Admit, TXInt\n");
+        fprintf(out, "# 14) Receive group list: - or index in Grouplist table\n");
+        fprintf(out, "# 15) Contact for transmit: - or index in Contacts table\n");
         fprintf(out, "#\n");
     }
-    fprintf(out, "Digital Name             Receive   Transmit Power Scan AS Squelch TOT RO Admit  Color Slot InCall RxGL TxContact");
+    fprintf(out, "Digital Name             Receive   Transmit Power Scan AS TOT RO Admit  Color Slot InCall RxGL TxContact");
 #ifdef PRINT_RARE_PARAMS
     fprintf(out, " Dly RxRef TxRef LW VOX TA EmSys Privacy  PN PCC EAA DCC CU");
 #endif
@@ -909,7 +905,6 @@ static void print_digital_channels(FILE *out, int verbose)
         //      Data Call Confirmed
         //      DCDM switch (inverted)
         //      Leader/MS
-
         if (ch->emergency_system_index == 0)
             fprintf(out, "-     ");
         else
@@ -952,16 +947,16 @@ static void print_analog_channels(FILE *out, int verbose)
         fprintf(out, "# 5) Transmit power: High, Low\n");
         fprintf(out, "# 6) Scan list: - or index\n");
         fprintf(out, "# 7) Autoscan flag: -, +\n");
-        fprintf(out, "# 8) Squelch level: Normal, Tight\n");
-        fprintf(out, "# 9) Transmit timeout timer in seconds: 0, 15, 30, 45... 555\n");
-        fprintf(out, "# 10) Receive only: -, +\n");
-        fprintf(out, "# 11) Admit criteria: -, Free, Tone\n");
+        fprintf(out, "# 8) Transmit timeout timer in seconds: 0, 15, 30, 45... 555\n");
+        fprintf(out, "# 9) Receive only: -, +\n");
+        fprintf(out, "# 10) Admit criteria: -, Free, Tone\n");
+        fprintf(out, "# 11) Squelch level: Normal, Tight\n");
         fprintf(out, "# 12) Guard tone for receive, or '-' to disable\n");
         fprintf(out, "# 13) Guard tone for transmit, or '-' to disable\n");
         fprintf(out, "# 14) Bandwidth in kHz: 12.5, 20, 25\n");
         fprintf(out, "#\n");
     }
-    fprintf(out, "Analog  Name             Receive   Transmit Power Scan AS Squelch TOT RO Admit  RxTone TxTone Width");
+    fprintf(out, "Analog  Name             Receive   Transmit Power Scan AS TOT RO Admit  Squelch RxTone TxTone Width");
 #ifdef PRINT_RARE_PARAMS
     fprintf(out, " Dly RxRef TxRef LW VOX TA RxSign TxSign ID");
 #endif
@@ -976,9 +971,11 @@ static void print_analog_channels(FILE *out, int verbose)
         print_chan_base(out, ch, i+1);
 
         // Print analog parameters of the channel:
+        //      Squelch
         //      CTCSS/DCS Dec
         //      CTCSS/DCS Enc
         //      Bandwidth
+        fprintf(out, "%-7s ", SQUELCH_NAME[ch->squelch]);
         print_tone(out, ch->ctcss_dcs_receive);
         fprintf(out, "  ");
         print_tone(out, ch->ctcss_dcs_transmit);
@@ -992,7 +989,6 @@ static void print_analog_channels(FILE *out, int verbose)
         //      Tx Signaling System
         //      Display PTT ID (inverted)
         //      Non-QT/DQT Turn-off Freq.
-
         fprintf(out, "%-6s ", SIGNALING_SYSTEM[ch->rx_signaling_syst]);
         fprintf(out, "%-6s ", SIGNALING_SYSTEM[ch->tx_signaling_syst]);
         fprintf(out, "%c  ", "+-"[ch->display_pttid_dis]);

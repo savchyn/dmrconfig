@@ -843,7 +843,9 @@ static int have_channels(int mode)
 //      TX Frequency
 //      Power
 //      Scan List
-//      Squelch
+//      Autoscan
+//      TOT
+//      RX Only
 //      Admit Criteria
 //
 static void print_chan_base(FILE *out, channel_t *ch, int cnum)
@@ -864,11 +866,6 @@ static void print_chan_base(FILE *out, channel_t *ch, int cnum)
 
     fprintf(out, "%c  ", "-+"[ch->autoscan]);
 
-    if (ch->squelch <= 9)
-        fprintf(out, "%1d  ", ch->squelch);
-    else
-        fprintf(out, "1  ");
-
     if (ch->tot == 0)
         fprintf(out, "-   ");
     else
@@ -882,12 +879,9 @@ static void print_chan_base(FILE *out, channel_t *ch, int cnum)
 #ifdef PRINT_RARE_PARAMS
 //
 // Print extended parameters of the channel:
-//      TOT
 //      TOT Rekey Delay
 //      RX Ref Frequency
 //      RX Ref Frequency
-//      Autoscan
-//      RX Only
 //      Lone Worker
 //      VOX
 //
@@ -914,18 +908,17 @@ static void print_digital_channels(FILE *out, int verbose)
         fprintf(out, "# 5) Transmit power: High, Mid, Low\n");
         fprintf(out, "# 6) Scan list: - or index in Scanlist table\n");
         fprintf(out, "# 7) Autoscan flag: -, +\n");
-        fprintf(out, "# 8) Squelch level: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9\n");
-        fprintf(out, "# 9) Transmit timeout timer in seconds: 0, 15, 30, 45... 555\n");
-        fprintf(out, "# 10) Receive only: -, +\n");
-        fprintf(out, "# 11) Admit criteria: -, Free, Color\n");
-        fprintf(out, "# 12) Color code: 0, 1, 2, 3... 15\n");
-        fprintf(out, "# 13) Time slot: 1 or 2\n");
-        fprintf(out, "# 14) In call criteria: -, Admit, TXInt\n");
-        fprintf(out, "# 15) Receive group list: - or index in Grouplist table\n");
-        fprintf(out, "# 16) Contact for transmit: - or index in Contacts table\n");
+        fprintf(out, "# 8) Transmit timeout timer in seconds: 0, 15, 30, 45... 555\n");
+        fprintf(out, "# 9) Receive only: -, +\n");
+        fprintf(out, "# 10) Admit criteria: -, Free, Color\n");
+        fprintf(out, "# 11) Color code: 0, 1, 2, 3... 15\n");
+        fprintf(out, "# 12) Time slot: 1 or 2\n");
+        fprintf(out, "# 13) In call criteria: -, Admit, TXInt\n");
+        fprintf(out, "# 14) Receive group list: - or index in Grouplist table\n");
+        fprintf(out, "# 15) Contact for transmit: - or index in Contacts table\n");
         fprintf(out, "#\n");
     }
-    fprintf(out, "Digital Name             Receive   Transmit Power Scan AS Sq TOT RO Admit  Color Slot InCall RxGL TxContact");
+    fprintf(out, "Digital Name             Receive   Transmit Power Scan AS TOT RO Admit  Color Slot InCall RxGL TxContact");
 #ifdef PRINT_RARE_PARAMS
     fprintf(out, " Dly RxRef TxRef LW VOX EmSys Privacy  PN PCC EAA DCC DCDM");
 #endif
@@ -970,7 +963,6 @@ static void print_digital_channels(FILE *out, int verbose)
         //      Data Call Confirmed
         //      DCDM switch (inverted)
         //      Leader/MS
-
         if (ch->emergency_system_index == 0)
             fprintf(out, "-     ");
         else
@@ -1017,16 +1009,16 @@ static void print_analog_channels(FILE *out, int verbose)
         fprintf(out, "# 5) Transmit power: High, Mid, Low\n");
         fprintf(out, "# 6) Scan list: - or index\n");
         fprintf(out, "# 7) Autoscan flag: -, +\n");
-        fprintf(out, "# 8) Squelch level: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9\n");
-        fprintf(out, "# 9) Transmit timeout timer in seconds: 0, 15, 30, 45... 555\n");
-        fprintf(out, "# 10) Receive only: -, +\n");
-        fprintf(out, "# 11) Admit criteria: -, Free, Tone\n");
+        fprintf(out, "# 8) Transmit timeout timer in seconds: 0, 15, 30, 45... 555\n");
+        fprintf(out, "# 9) Receive only: -, +\n");
+        fprintf(out, "# 10) Admit criteria: -, Free, Tone\n");
+        fprintf(out, "# 11) Squelch level: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9\n");
         fprintf(out, "# 12) Guard tone for receive, or '-' to disable\n");
         fprintf(out, "# 13) Guard tone for transmit, or '-' to disable\n");
         fprintf(out, "# 14) Bandwidth in kHz: 12.5, 20, 25\n");
         fprintf(out, "#\n");
     }
-    fprintf(out, "Analog  Name             Receive   Transmit Power Scan AS Sq TOT RO Admit  RxTone TxTone Width");
+    fprintf(out, "Analog  Name             Receive   Transmit Power Scan AS TOT RO Admit  Sq RxTone TxTone Width");
 #ifdef PRINT_RARE_PARAMS
     fprintf(out, " Dly RxRef TxRef LW VOX RxSign TxSign ID TOFreq");
 #endif
@@ -1041,9 +1033,15 @@ static void print_analog_channels(FILE *out, int verbose)
         print_chan_base(out, ch, i+1);
 
         // Print analog parameters of the channel:
+        //      Squelch
         //      CTCSS/DCS Dec
         //      CTCSS/DCS Enc
         //      Bandwidth
+        if (ch->squelch <= 9)
+            fprintf(out, "%1d  ", ch->squelch);
+        else
+            fprintf(out, "1  ");
+
         print_tone(out, ch->ctcss_dcs_receive);
         fprintf(out, "  ");
         print_tone(out, ch->ctcss_dcs_transmit);
@@ -1057,7 +1055,6 @@ static void print_analog_channels(FILE *out, int verbose)
         //      Tx Signaling System
         //      Display PTT ID (inverted)
         //      Non-QT/DQT Turn-off Freq.
-
         fprintf(out, "%-6s ", SIGNALING_SYSTEM[ch->rx_signaling_syst]);
         fprintf(out, "%-6s ", SIGNALING_SYSTEM[ch->tx_signaling_syst]);
         fprintf(out, "%c  ", "+-"[ch->display_pttid_dis]);
@@ -2402,6 +2399,58 @@ static int uv380_verify_config(radio_device_t *radio)
 }
 
 //
+// Build search index of callsign table.
+// Callsigns are supposed to be sorted by id.
+//
+// Region 0x200003-0x204002 of configuration memory contains a search helper
+// for the ContactsCSV table. The helper is organized as a list
+// of pairs <idbase, index>:
+//      idbase - high bits 23:12 of DMR ID
+//      index - number in ContactsCSV table, starting from 1 (20 bits)
+//
+// For example:
+//               id[23:12]
+//        Ncontacts  |   index[19:0]
+//         vvvvvvvv //\  /||\\.
+// 200000  00 40 00 5a d0 00 01 5a e0 10 00 5a f0 20 00 5b  .@.Z...Z...Z. .[
+// 200010  00 30 00 5b 10 40 00 ff ff ff ff ff ff ff ff ff  .0.[.@..........
+// 200020  ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff  ................
+// *
+// 204000  ff ff ff
+//
+static void build_callsign_index(uint8_t *mem, int nrecords)
+{
+    uint8_t *p;
+    int index;
+
+    // Number of contacts.
+    mem[0] = nrecords >> 16;
+    mem[1] = nrecords >> 8;
+    mem[2] = nrecords;
+
+    // Callsign index starting from 1.
+    index = 1;
+
+    p = &mem[3];
+    for (;;) {
+        int id = GET_CALLSIGN(mem, index-1)->dmrid;
+
+        // Add index item.
+        *p++ = id >> 16;
+        *p++ = ((id >> 8) & 0xf0) | (index >> 16);
+        *p++ = index >> 8;
+        *p++ = index;
+
+        // Skip callsigns with the same id[23:12].
+        do {
+            index++;
+            if (index > nrecords)
+                return;
+        } while ((GET_CALLSIGN(mem, index-1)->dmrid >> 12) == (id >> 12));
+    }
+}
+
+//
 // Write CSV file to contacts database.
 //
 static void uv380_write_csv(radio_device_t *radio, FILE *csv)
@@ -2462,10 +2511,11 @@ static void uv380_write_csv(radio_device_t *radio, FILE *csv)
     }
     fprintf(stderr, "Total %d contacts.\n", nrecords);
 
-    // Number of contacts.
-    mem[0] = nrecords >> 16;
-    mem[1] = nrecords >> 8;
-    mem[2] = nrecords;
+    build_callsign_index(mem, nrecords);
+#if 0
+    print_hex(mem, 0x4003);
+    exit(0);
+#endif
 
     // Align to 1kbyte.
     finish = CALLSIGN_START + (CALLSIGN_OFFSET + nrecords*120 + 1023) / 1024 * 1024;
@@ -2527,10 +2577,50 @@ radio_device_t radio_uv380 = {
 };
 
 //
+// TYT MD-UV390
+//
+radio_device_t radio_uv390 = {
+    "TYT MD-UV390",
+    uv380_download,
+    uv380_upload,
+    uv380_is_compatible,
+    uv380_read_image,
+    uv380_save_image,
+    uv380_print_version,
+    uv380_print_config,
+    uv380_verify_config,
+    uv380_parse_parameter,
+    uv380_parse_header,
+    uv380_parse_row,
+    uv380_update_timestamp,
+    uv380_write_csv,
+};
+
+//
 // TYT MD-2017
 //
 radio_device_t radio_md2017 = {
     "TYT MD-2017",
+    uv380_download,
+    uv380_upload,
+    uv380_is_compatible,
+    uv380_read_image,
+    uv380_save_image,
+    uv380_print_version,
+    uv380_print_config,
+    uv380_verify_config,
+    uv380_parse_parameter,
+    uv380_parse_header,
+    uv380_parse_row,
+    uv380_update_timestamp,
+    uv380_write_csv,
+};
+
+//
+// TYT MD-9600
+//
+radio_device_t radio_md9600 = {
+    "TYT MD-9600",
     uv380_download,
     uv380_upload,
     uv380_is_compatible,
