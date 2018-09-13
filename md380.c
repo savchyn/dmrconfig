@@ -189,12 +189,11 @@ typedef struct {
 #define CONTACT_ID(ct) ((ct)->id[0] | ((ct)->id[1] << 8) | ((ct)->id[2] << 16))
 
     // Byte 3
-    uint8_t type                : 2,    // Call Type: Group Call, Private Call or All Call
+    uint8_t type                : 5,    // Call Type: Group Call, Private Call or All Call
 #define CALL_GROUP      1
 #define CALL_PRIVATE    2
 #define CALL_ALL        3
 
-            _unused1            : 3,    // 0
             receive_tone        : 1,    // Call Receive Tone: No or yes
             _unused2            : 2;    // 0b11
 
@@ -1207,7 +1206,7 @@ static void md380_print_config(radio_device_t *radio, FILE *out, int verbose)
             fprintf(out, "%5d   ", i+1);
             print_unicode(out, ct->name, 16, 1);
             fprintf(out, " %-7s %-8d %s\n",
-                CONTACT_TYPE[ct->type], CONTACT_ID(ct), ct->receive_tone ? "+" : "-");
+                CONTACT_TYPE[ct->type & 3], CONTACT_ID(ct), ct->receive_tone ? "+" : "-");
         }
     }
 
