@@ -1,6 +1,9 @@
-<img src="https://travis-ci.org/savchyn/dmrconfig.svg?branch=master" alt="Build Status" />
+[![Build Status](https://travis-ci.org/savchyn/dmrconfig.svg?branch=master)](https://travis-ci.org/savchyn/dmrconfig)
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7c1d36e3c9b64c59a709287585d65d48)](https://www.codacy.com/app/savchyn/dmrconfig?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=savchyn/dmrconfig&amp;utm_campaign=Badge_Grade)
 
 [![codecov](https://codecov.io/gh/savchyn/dmrconfig/master/graph/badge.svg)](https://codecov.io/gh/savchyn/dmrconfig)
+
 DMRconfig is a utility for programming digital radios via USB programming cable.
 Supported radios:
 
