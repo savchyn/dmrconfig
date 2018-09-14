@@ -1373,8 +1373,8 @@ static void md380_parse_parameter(radio_device_t *radio, char *param, char *valu
     general_settings_t *gs = GET_SETTINGS();
 
     if (strcasecmp("Radio", param) == 0) {
-        if (strcasecmp(radio->name, value) != 0) {
-            fprintf(stderr, "Bad value for %s: %s\n", param, value);
+        if (!radio_is_compatible(value)) {
+            fprintf(stderr, "Incompatible md model: %s\n", value);
             exit(-1);
         }
         return;
