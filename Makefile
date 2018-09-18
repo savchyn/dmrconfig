@@ -12,7 +12,7 @@ LIBS            = -lusb-1.0
 # Linux
 ifeq ($(UNAME),Linux)
     OBJS        += hid-libusb.o
-    LIBS        = -Wl,-Bstatic -lusb-1.0 -Wl,-Bdynamic -lpthread -ludev
+    LIBS        = -Wl,-Bstatic -lusb-1.0 -Wl,-Bdynamic -lpthread
 endif
 
 # Mac OS X
