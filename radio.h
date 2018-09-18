@@ -122,6 +122,9 @@ extern radio_device_t radio_md9600;     // TYT MD-9600
 extern radio_device_t radio_d900;       // Zastone D900
 extern radio_device_t radio_dp880;      // Zastone DP880
 extern radio_device_t radio_rt27d;      // Radtel RT-27D
+extern radio_device_t radio_rd5r;       // Baofeng RD-5R
+extern radio_device_t radio_gd77;       // Radioddity GD-77
+extern radio_device_t radio_gd77_old;   // Radioddity GD-77, older versions up to 2.6.6
 
 //
 // Radio: memory contents.

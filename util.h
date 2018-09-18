@@ -66,6 +66,18 @@ void dfu_write_block(int bno, unsigned char *data, int nbytes);
 void dfu_reboot(void);
 
 //
+// HID functions.
+//
+int hid_init(int vid, int pid);
+const char *hid_identify(void);
+void hid_close(void);
+void hid_send_recv(const unsigned char *data, unsigned nbytes, unsigned char *rdata, unsigned rlength);
+void hid_read_block(int bno, unsigned char *data, int nbytes);
+void hid_read_finish(void);
+void hid_write_block(int bno, unsigned char *data, int nbytes);
+void hid_write_finish(void);
+
+//
 // Delay in milliseconds.
 //
 void mdelay(unsigned msec);
@@ -124,6 +136,7 @@ void putc_utf8(unsigned short ch, FILE *out);
 // Print utf16 text as utf8.
 //
 void print_unicode(FILE *out, const unsigned short *text, unsigned nchars, int fill_flag);
+void print_ascii(FILE *out, const unsigned char *text, unsigned nchars, int fill_flag);
 
 //
 // Fetch Unicode symbol from UTF-8 string.

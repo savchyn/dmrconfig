@@ -1,12 +1,12 @@
 CC		= gcc
 
-VERSION         = 0.4
+VERSION         = $(shell git describe --tags --abbrev=0)
 GITCOUNT        = $(shell git rev-list HEAD --count)
 CFLAGS		= -g -O -Wall -Werror -DVERSION='"$(VERSION).$(GITCOUNT)"'
 LDFLAGS		= -g -s
 
-OBJS		= main.o util.o radio.o dfu-windows.o uv380.o md380.o
-LIBS            = -lsetupapi
+OBJS		= main.o util.o radio.o dfu-windows.o uv380.o md380.o rd5r.o hid.o hid-windows.o
+LIBS            = -lhid -lsetupapi
 
 # Compiling Windows binary from Linux
 ifeq (/usr/bin/i586-mingw32msvc-gcc,$(wildcard /usr/bin/i586-mingw32msvc-gcc))
@@ -28,14 +28,21 @@ dmrconfig.exe:	$(OBJS)
 
 clean:
 		rm -f *~ *.o core dmrconfig
+test:	dmrcongig
 
 install:	dmrconfig
 		install -c -s dmrconfig /usr/local/bin/dmrconfig
 
+.PHONY: all clean test install
 ###
+dfu-libusb.o: dfu-libusb.c util.h
 dfu-windows.o: dfu-windows.c util.h
+hid-libusb.o: hid-libusb.c util.h
+hid-macos.o: hid-macos.c util.h
+hid-windows.o: hid-windows.c util.h
 main.o: main.c radio.h util.h
 md380.o: md380.c radio.h util.h
 radio.o: radio.c radio.h util.h
+rd5r.o: rd5r.c radio.h util.h
 util.o: util.c util.h
 uv380.o: uv380.c radio.h util.h

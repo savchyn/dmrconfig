@@ -47,6 +47,9 @@ static struct {
     { "ZD3688",     &radio_d900 },      // Zastone D900
     { "TP660",      &radio_dp880 },     // Zastone DP880
     { "ZN><:",      &radio_rt27d },     // Radtel RT-27D
+    { "BF-5R",      &radio_rd5r },      // Baofeng RD-5R
+    { "MD-760P",    &radio_gd77 },      // Radioddity GD-77
+    { "MD-760",     &radio_gd77_old },  // Radioddity GD-77, older versions up to 2.6.6
     { 0, 0 }
 };
 
@@ -65,6 +68,7 @@ void radio_disconnect()
     // Restore the normal radio mode.
     dfu_reboot();
     dfu_close();
+    hid_close();
 }
 
 //
@@ -80,9 +84,21 @@ void radio_print_version(FILE *out)
 //
 void radio_connect()
 {
-    // Only TYT MD family for now.
-    const char *ident = dfu_init(0x0483, 0xdf11);
+    const char *ident;
     int i;
+
+    // Try TYT MD family.
+    ident = dfu_init(0x0483, 0xdf11);
+    if (! ident) {
+        // Try RD-5R.
+        if (hid_init(0x15a2, 0x0073) >= 0)
+            ident = hid_identify();
+    }
+    if (! ident) {
+        fprintf(stderr, "No radio detected.\n");
+        fprintf(stderr, "Check your USB cable!\n");
+        exit(-1);
+    }
 
     for (i=0; radio_tab[i].ident; i++) {
         if (strcasecmp(ident, radio_tab[i].ident) == 0) {
@@ -116,8 +132,10 @@ void radio_list()
 void radio_download()
 {
     radio_progress = 0;
-    if (! trace_flag)
+    if (! trace_flag) {
         fprintf(stderr, "Read device: ");
+        fflush(stderr);
+    }
 
     device->download(device);
 
@@ -153,8 +171,14 @@ void radio_read_image(const char *filename)
 {
     FILE *img;
     struct stat st;
+    char ident[8];
 
     fprintf(stderr, "Read codeplug from file '%s'.\n", filename);
+    img = fopen(filename, "rb");
+    if (! img) {
+        perror(filename);
+        exit(-1);
+    }
 
     // Guess device type by file size.
     if (stat(filename, &st) < 0) {
@@ -170,17 +194,30 @@ void radio_read_image(const char *filename)
     case 262709:
         device = &radio_md380;
         break;
+    case 131072:
+        if (fread(ident, 1, 8, img) != 8) {
+            fprintf(stderr, "%s: Cannot read header.\n", filename);
+            exit(-1);
+        }
+        fseek(img, 0, SEEK_SET);
+        if (memcmp(ident, "BF-5R", 5) == 0) {
+            device = &radio_rd5r;
+        } else if (memcmp(ident, "MD-760P", 7) == 0) {
+            device = &radio_gd77;
+        } else if (memcmp(ident, "MD-760", 6) == 0) {
+            device = &radio_gd77_old;
+        } else {
+            fprintf(stderr, "%s: Unrecognized header '%.6s'\n",
+                filename, ident);
+            exit(-1);
+        }
+        break;
     default:
         fprintf(stderr, "%s: Unrecognized file size %u bytes.\n",
             filename, (int) st.st_size);
         exit(-1);
     }
 
-    img = fopen(filename, "rb");
-    if (! img) {
-        perror(filename);
-        exit(-1);
-    }
     device->read_image(device, img);
     fclose(img);
 }

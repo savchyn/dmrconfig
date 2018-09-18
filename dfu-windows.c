@@ -399,8 +399,10 @@ const char *dfu_init(unsigned vid, unsigned pid)
     }
 
     if (!path) {
-        fprintf(stderr, "Cannot find USB device %04x:%04x\n", vid, pid);
-        exit(-1);
+        if (trace_flag) {
+            fprintf(stderr, "Cannot find DFU device %04x:%04x\n", vid, pid);
+        }
+        return 0;
     }
 
     // Open the device.
@@ -528,6 +530,8 @@ void dfu_reboot()
 {
     unsigned char cmd[2] = { 0x91, 0x05 };
 
+    if (!dev)
+        return;
     if (trace_flag) {
         printf("--- Send DNLOAD [2] ");
         print_hex(cmd, 2);
