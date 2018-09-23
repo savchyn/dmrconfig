@@ -3,3 +3,4 @@
 dmrconfig
 *.exe
 *.obj
+.DS_Store
