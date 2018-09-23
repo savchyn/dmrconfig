@@ -68,7 +68,7 @@ void dfu_reboot(void);
 //
 // HID functions.
 //
-int hid_init(int vid, int pid);
+const char *hid_init(int vid, int pid);
 const char *hid_identify(void);
 void hid_close(void);
 void hid_send_recv(const unsigned char *data, unsigned nbytes, unsigned char *rdata, unsigned rlength);

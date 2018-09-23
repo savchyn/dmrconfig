@@ -54,9 +54,7 @@ static const int CTCSS_TONES [NCTCSS] = {
 //
 // DCS codes.
 //
-#define NDCS    (104+1)
-
-static const int DCS_CODES[NDCS] = {
+static const int DCS_CODES[] = {
      23,  25,  26,  31,  32,  36,  43,  47,  51,  53,
      54,  65,  71,  72,  73,  74, 114, 115, 116, 122,
     125, 131, 132, 134, 143, 145, 152, 155, 156, 162,
@@ -70,6 +68,9 @@ static const int DCS_CODES[NDCS] = {
     732, 734, 743, 754,
      17, // For RD-5R
 };
+
+#define NDCS (sizeof(DCS_CODES)/sizeof(DCS_CODES[0]))
+
 
 //
 // Check for a regular file.
