@@ -47,7 +47,6 @@ static libusb_device_handle *dev;           // libusb device
 static struct libusb_transfer *transfer;    // async transfer descriptor
 static unsigned char receive_buf[42];       // receive buffer
 static volatile int nbytes_received = 0;    // receive result
-static unsigned offset = 0;                 // CWD offset
 
 #define HID_INTERFACE   0                   // interface index
 #define TIMEOUT_MSEC    500                 // receive timeout
